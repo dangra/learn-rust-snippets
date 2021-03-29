@@ -54,7 +54,7 @@ impl<T> Drop for List<T> {
 }
 
 
-// IntoIter Trait
+// IntoIter
 pub struct IntoIter<T>(List<T>);
 
 impl<T> List<T> {
@@ -69,6 +69,30 @@ impl<T> Iterator for IntoIter<T> {
         self.0.pop()
     }
 }
+
+// Iter
+pub struct Iter<T> {
+    next: Option<&Node<T>>,
+}
+
+impl<T> List<T> {
+    pub fn iter(&self) -> Iter<T> {
+        Iter { next: self.head.map(|node| &node) }
+    }
+}
+
+impl<T> Iterator for Iter<T> {
+    type Item = &T;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        self.next.map(|node| {
+            self.next = node.next.map(|node| &node);
+            &node.elem
+        })
+    }
+}
+
+
 
 
 #[cfg(test)]
