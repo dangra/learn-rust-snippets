@@ -2,7 +2,7 @@ use std::mem;
 
 pub struct List<T> {
     head: Link<T>,
-    tail: Link<T>,
+    tail: Option<&mut Node<T>>,
 }
 
 type Link<T> = Option<Box<Node<T>>>;
@@ -23,16 +23,18 @@ impl<T> List<T> {
             next: None,
         });
 
-        let old_tail = mem::replace(&mut self.tail, Some(new_tail));
-
-        match old_tail {
-            Some(mut old_tail) => {
+        let new_tail = match self.tail.take() {
+            Some(old_tail) => {
                 old_tail.next = Some(new_tail);
+                old_tail.next.as_deref_mut()
             }
             None => {
                 self.head = Some(new_tail);
+                self.head.as_deref_mut()
             }
-        }
+        };
+
+        self.tail = new_tail;
     }
 }
 
